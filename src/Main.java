@@ -33,7 +33,6 @@ public class Main {
         String name = sc.nextLine();
         Board board = new Board(name);
 
-        // Colunas padrão
         board.addColumn(new Column("Backlog", "Inicial", 1));
         board.addColumn(new Column("Em Andamento", "Pendente", 2));
         board.addColumn(new Column("Concluído", "Final", 3));
@@ -131,7 +130,6 @@ public class Main {
         Card card = cards.get(cardIndex);
         if (card.isBlocked()) { System.out.println("Este card está bloqueado. Desbloqueie antes de mover."); return; }
 
-        // Próxima coluna (exceto cancelamento)
         Column to = null;
         for (int i = colIndex + 1; i < columns.size(); i++) {
             if (!columns.get(i).getType().equals("Cancelamento")) { to = columns.get(i); break; }
@@ -175,11 +173,9 @@ public class Main {
                 .filter(c -> c.getType().equals("Cancelamento")).findFirst().orElse(null);
         if (cancelCol == null) { System.out.println("Coluna de cancelamento não encontrada."); return; }
 
-        // Remover da coluna atual
         for (Column c : board.getColumns()) c.getCards().remove(card);
         cancelCol.addCard(card);
 
-        // Salvar alterações
         for (Column c : board.getColumns()) c.save(board.getId());
 
         System.out.println("Card cancelado e movido para a coluna 'Cancelado'.");
