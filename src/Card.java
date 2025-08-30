@@ -1,18 +1,23 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Card {
-    private int id;
+    int id;
     private String title;
     private String description;
     private boolean blocked;
-    private String blockReason;
-    private String unblockReason;
+    String blockReason;
+    String unblockReason;
 
     public Card(String title, String description) {
         this.title = title;
         this.description = description;
         this.blocked = false;
     }
+
+    public String getTitle() { return title; }
+    public boolean isBlocked() { return blocked; }
 
     public void block(String reason) {
         this.blocked = true;
@@ -42,5 +47,28 @@ public class Card {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Card> getCardsByColumnId(int columnId) {
+        List<Card> cards = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cards WHERE column_id = ?")) {
+
+            stmt.setInt(1, columnId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Card card = new Card(rs.getString("title"), rs.getString("description"));
+                card.id = rs.getInt("id");
+                card.blocked = rs.getBoolean("blocked");
+                card.blockReason = rs.getString("block_reason");
+                card.unblockReason = rs.getString("unblock_reason");
+                cards.add(card);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cards;
     }
 }

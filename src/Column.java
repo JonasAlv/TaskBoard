@@ -16,7 +16,6 @@ public class Column {
     }
 
     public void addCard(Card card) { cards.add(card); }
-
     public List<Card> getCards() { return cards; }
     public String getName() { return name; }
     public String getType() { return type; }
@@ -42,5 +41,26 @@ public class Column {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Column> getColumnsByBoardId(int boardId) {
+        List<Column> columns = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM columns WHERE board_id = ? ORDER BY position ASC")) {
+
+            stmt.setInt(1, boardId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Column col = new Column(rs.getString("name"), rs.getString("type"), rs.getInt("position"));
+                col.id = rs.getInt("id");
+                col.cards = Card.getCardsByColumnId(col.id);
+                columns.add(col);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return columns;
     }
 }
